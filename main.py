@@ -8,7 +8,7 @@ def normalize(X):
     _min = np.min(X, axis=0)
     _max = np.max(X, axis=0)
     _range = _max - _min
-    norm_X = 1 - (maxs - X)/_range
+    norm_X = 1 - (_max - X)/_range
     return norm_X
 
 # Logistic(sigmoid) function
@@ -25,13 +25,13 @@ def logistic_gradient(theta, X, y):
 def cost_function(theta, X, y):
     log_func = logistic_function(theta, X)
     y = np.squeeze(y)
-    step1 = y * np.log(log_func)
-    step2 = (1 - y) * np.log(1.0 - log_func)
+    step1 = y * np.log(log_func+0.0001)
+    step2 = (1 - y) * np.log(1.0001 - log_func)
     final = - step1 - step2
     return np.mean(final)
 
 # Gradient descent function
-def gradient_descent(theta, X, y, lr=0.05, converge_change=1e-4):
+def gradient_descent(theta, X, y, lr=0.3, converge_change=1e-4):
     cost = cost_function(theta, X, y)
     change_cost = 1
     num_iter = 1
@@ -58,6 +58,7 @@ if __name__ == "__main__":
 
     # Get features from the data
     X = df[df.columns[:12]].values  # Get 12 features for input
+    X = normalize(X)                # Nomalize X
     Y = df[df.columns[-1]].values   # Get the last feature for output
     
     np.random.seed(1)
@@ -70,9 +71,10 @@ if __name__ == "__main__":
     x_test = X[p[int(len(X)*alpha):]].copy()
     y_test = Y[p[int(len(X)*alpha):]].copy()
 
-    # Initial beta values 
+    # Initial theta values 
     theta = np.matrix(np.zeros(x_train.shape[1]))
     # print(theta.shape)
+    # print(x_train.shape)
     # Theta values after running gradient descent
     theta, num_iter = gradient_descent(theta, x_train, y_train)
     # Estimated beta values and number of iterations 
@@ -83,5 +85,5 @@ if __name__ == "__main__":
 
     num_correct = len(y_predict[y_predict!=y_test])
     num_total = len(y_predict)
-    print("Wrong predict = {}/{}".format(num_correct, num_total))
+    print("Accuracy= {}/{}".format(num_correct, num_total))
     print("Logistic Regression model accuracy: {}%".format(round(100*num_correct/num_total, 2)))
